@@ -12,18 +12,29 @@ export function initFiltering(elements) {
 
     const applyFiltering = (query, state, action) => {
         // код с обработкой очистки поля
-        if (action && action.name === 'clear') {
-            const button = action.element;
-            const fieldName = button.dataset.field;
-            const parent = button.parentNode;
-            const input = parent.querySelector('input, select');
-            
+        if (action) {
+        const button = action.target || action;
+        if (button && button.name === 'clear') {
+            const fieldName = button.getAttribute('data-field');
+
+            let filterWrapper = button.parentElement;
+            const input =
+            (filterWrapper && filterWrapper.querySelector && filterWrapper.querySelector('input, select')) ||
+            (button.closest && button.closest('.table-column') && button.closest('.table-column').querySelector('input, select'));
+
             if (input) {
-                input.value = '';
-                if (state && state[fieldName]) {
-                    state[fieldName] = '';
-                }
+            input.value = ''; // сбрасываем значение поля
             }
+
+            
+            if (fieldName && state && typeof state === 'object') {
+            if (state.filters && Object.prototype.hasOwnProperty.call(state.filters, fieldName)) {
+                state.filters[fieldName] = '';
+            } else {
+                state[fieldName] = '';
+            }
+            }
+        }
         }
 
         // @todo: #4.5 — отфильтровать данные, используя компаратор
